@@ -13,6 +13,7 @@ Dependencies are listed in `req.txt`:
 - `nltk`
 - `numpy`
 - `networkx`
+- `scipy` (used by NetworkX PageRank)
 
 ## Project Setup
 

@@ -13,21 +13,30 @@ class SummarizerMainWindow:
         self.root.title("Free Text Summarizer")
         self.root.geometry("1100x720")
         self.root.minsize(900, 600)
+        self.windowing_system = self.root.tk.call("tk", "windowingsystem")
 
         self.current_theme = LIGHT_THEME
         self.selected_keywords: set[str] = set()
         self.bullet_mode = False
         self.chip_widgets: list[tk.Button] = []
 
-        self.font_title = ("Segoe UI", 22, "bold")
-        self.font_main = ("Segoe UI", 11)
-        self.font_small = ("Segoe UI", 9)
+        self.font_family = self._get_font_family()
+        self.font_title = (self.font_family, 22, "bold")
+        self.font_main = (self.font_family, 12)
+        self.font_small = (self.font_family, 10)
 
         self._build_ui()
         self.refresh_theme()
         self.update_word_count()
         self.update_output_stats()
         self.rebuild_keyword_chips()
+
+    def _get_font_family(self) -> str:
+        if self.windowing_system == "aqua":
+            return "SF Pro Text"
+        if self.windowing_system == "win32":
+            return "Segoe UI"
+        return "Helvetica"
 
     def _build_ui(self) -> None:
         self.card = tk.Frame(self.root, bg=self.current_theme["card_bg"], padx=24, pady=20)
@@ -59,10 +68,11 @@ class SummarizerMainWindow:
         self.mode_paragraph = tk.Button(
             self.mode_frame,
             text="Paragraph",
-            font=("Segoe UI", 10, "bold"),
+            font=(self.font_family, 10, "bold"),
             relief=tk.SOLID,
             borderwidth=0,
             bd=0,
+            highlightthickness=0,
             cursor="hand2",
             command=self.set_mode_paragraph,
             bg=self.current_theme["card_bg"],
@@ -73,9 +83,10 @@ class SummarizerMainWindow:
         self.mode_bullet = tk.Button(
             self.mode_frame,
             text="Bullet Points",
-            font=("Segoe UI", 10),
+            font=(self.font_family, 10),
             relief=tk.FLAT,
             bd=0,
+            highlightthickness=0,
             cursor="hand2",
             command=self.set_mode_bullet,
             bg=self.current_theme["card_bg"],
@@ -102,7 +113,7 @@ class SummarizerMainWindow:
         self.short_label = tk.Label(
             slider_row,
             text="Short",
-            font=("Segoe UI", 9),
+            font=self.font_small,
             bg=self.current_theme["card_bg"],
             fg=self.current_theme["label_muted"],
         )
@@ -123,7 +134,7 @@ class SummarizerMainWindow:
         self.long_label = tk.Label(
             slider_row,
             text="Long",
-            font=("Segoe UI", 9),
+            font=self.font_small,
             bg=self.current_theme["card_bg"],
             fg=self.current_theme["label_muted"],
         )
@@ -132,15 +143,16 @@ class SummarizerMainWindow:
     def _build_clear_button(self) -> None:
         self.clear_btn = tk.Button(
             self.top_bar,
-            text="🗑",
-            font=("Segoe UI", 14),
+            text="Clear",
+            font=(self.font_family, 10, "bold"),
             cursor="hand2",
             command=self.clear_all,
             bg=self.current_theme["card_bg"],
             fg=self.current_theme["trash_fg"],
             bd=0,
-            padx=8,
-            pady=4,
+            highlightthickness=0,
+            padx=10,
+            pady=6,
         )
         self.clear_btn.pack(side=tk.RIGHT)
 
@@ -225,7 +237,7 @@ class SummarizerMainWindow:
         self.summarize_btn = tk.Button(
             self.bottom_bar,
             text="Summarize",
-            font=("Segoe UI", 11, "bold"),
+            font=(self.font_family, 11, "bold"),
             command=self.do_summarize,
             cursor="hand2",
             padx=32,
@@ -243,7 +255,7 @@ class SummarizerMainWindow:
         self.paraphrase_btn = tk.Button(
             self.bottom_bar,
             text="Paraphrase Summary",
-            font=("Segoe UI", 10),
+            font=(self.font_family, 10),
             command=self.do_paraphrase,
             cursor="hand2",
             padx=20,
@@ -254,45 +266,51 @@ class SummarizerMainWindow:
             bd=1,
             highlightbackground=self.current_theme["accent"],
             highlightthickness=1,
+            highlightcolor=self.current_theme["accent"],
         )
         self.paraphrase_btn.pack(side=tk.LEFT, padx=5)
 
         self.download_btn = tk.Button(
             self.bottom_bar,
-            text="⬇",
-            font=("Segoe UI", 12),
+            text="Save",
+            font=(self.font_family, 10, "bold"),
             cursor="hand2",
             command=self.do_download,
             bg=self.current_theme["card_bg"],
             fg=self.current_theme["fg"],
             bd=0,
-            padx=8,
+            highlightthickness=0,
+            padx=10,
+            pady=6,
         )
         self.download_btn.pack(side=tk.RIGHT, padx=4)
 
         self.copy_btn = tk.Button(
             self.bottom_bar,
-            text="📋",
-            font=("Segoe UI", 12),
+            text="Copy",
+            font=(self.font_family, 10, "bold"),
             cursor="hand2",
             command=self.do_copy,
             bg=self.current_theme["card_bg"],
             fg=self.current_theme["fg"],
             bd=0,
-            padx=8,
+            highlightthickness=0,
+            padx=10,
+            pady=6,
         )
         self.copy_btn.pack(side=tk.RIGHT)
 
     def _build_theme_button(self) -> None:
         self.theme_btn = tk.Button(
             self.card,
-            text="🌓 Dark / Light",
+            text="Toggle Theme",
             font=self.font_small,
             command=self.toggle_theme,
             cursor="hand2",
             bg=self.current_theme["card_bg"],
             fg=self.current_theme["label_muted"],
             bd=0,
+            highlightthickness=0,
             padx=10,
             pady=4,
         )
@@ -307,14 +325,14 @@ class SummarizerMainWindow:
 
     def set_mode_paragraph(self) -> None:
         self.bullet_mode = False
-        self.mode_paragraph.config(relief=tk.SOLID, borderwidth=0, font=("Segoe UI", 10, "bold"))
-        self.mode_bullet.config(relief=tk.FLAT, font=("Segoe UI", 10))
+        self.mode_paragraph.config(relief=tk.SOLID, borderwidth=0, font=(self.font_family, 10, "bold"))
+        self.mode_bullet.config(relief=tk.FLAT, font=(self.font_family, 10))
         self.refresh_theme()
 
     def set_mode_bullet(self) -> None:
         self.bullet_mode = True
-        self.mode_bullet.config(relief=tk.SOLID, borderwidth=0, font=("Segoe UI", 10, "bold"))
-        self.mode_paragraph.config(relief=tk.FLAT, font=("Segoe UI", 10))
+        self.mode_bullet.config(relief=tk.SOLID, borderwidth=0, font=(self.font_family, 10, "bold"))
+        self.mode_paragraph.config(relief=tk.FLAT, font=(self.font_family, 10))
         self.refresh_theme()
 
     def clear_all(self) -> None:
