@@ -1,179 +1,80 @@
-# NLP Text Summarizer (Tkinter)
+# NLP Text Summarizer (Django)
 
-A desktop text summarizer built with Python + Tkinter.
+This project is now a Django web app with a modern UI similar to your reference screenshots:
+- paragraph/bullet modes
+- summary length slider
+- auto keyword chips
+- copy/save actions
+- light/dark theme
 
-## Requirements
+## Backend Design (Strong + Modular)
 
-- Python 3.10+ recommended
-- `pip`
-- Internet connection (first run may download NLTK data)
+The backend is separated into clear layers:
+- `summarizer/forms.py`: strict request validation and limits
+- `summarizer/services.py`: summarization service logic (no HTTP code)
+- `summarizer/views.py`: API endpoints + JSON error handling
+- `app/core/nlp_engine.py`: NLP ranking engine (PageRank-based extraction)
 
-Dependencies are listed in `req.txt`:
+Security-focused defaults in `config/settings.py`:
+- CSRF middleware enabled for all POST requests
+- `HttpOnly` session and CSRF cookies
+- clickjacking and MIME sniffing protections
+- configurable `SECRET_KEY`, `DEBUG`, and `ALLOWED_HOSTS` from environment
 
-- `nltk`
-- `numpy`
-- `networkx`
-- `scipy` (used by NetworkX PageRank)
+## Tech Stack
 
-## Project Setup
+- Django
+- NLTK
+- NumPy
+- NetworkX
+- SciPy
 
-### Windows (PowerShell)
-
-1. Open PowerShell in the project folder:
-
-```powershell
-cd "D:\All Files\Project\NLP"
-```
-
-2. Create virtual environment:
-
-```powershell
-python -m venv venv
-```
-
-3. Activate virtual environment:
+## Quick Start (Windows PowerShell)
 
 ```powershell
-.\venv\Scripts\Activate.ps1
-```
-
-4. Install dependencies:
-
-```powershell
+cd "C:\Project\nlp-text-summarizer"
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 pip install -r req.txt
+python manage.py migrate
+python manage.py runserver
 ```
 
-5. Run app:
+Open: `http://127.0.0.1:8000`
 
-```powershell
-python nlp.py
-```
+## API Endpoints
 
-### macOS (Terminal / zsh)
+- `POST /api/summarize/`
+  - body: `text`, `mode` (`paragraph|bullet`), `length_ratio`, `keywords`
+- `POST /api/keywords/`
+  - body: `text`
 
-1. Open Terminal and go to project folder:
-
-```bash
-cd "/path/to/NLP"
-```
-
-2. Create virtual environment:
-
-```bash
-python3 -m venv venv
-```
-
-3. Activate virtual environment:
-
-```bash
-source venv/bin/activate
-```
-
-4. Install dependencies:
-
-```bash
-pip install -r req.txt
-```
-
-5. Run app:
-
-```bash
-python3 nlp.py
-```
-
-## Notes
-
-- If `python` does not work on macOS, use `python3`.
-- If `pip` does not work, use `python -m pip` (Windows) or `python3 -m pip` (macOS).
-- NLTK resources (`punkt`, `punkt_tab`, `stopwords`, `wordnet`) are downloaded by the app if missing.
-
-## Deactivate Virtual Environment
-
-- Windows:
-
-```powershell
-deactivate
-```
-
-- macOS:
-
-```bash
-deactivate
-```
-# NLP Text Summarizer (Tkinter)
-
-## Project Description
-This project is a desktop NLP text summarizer built with Python and Tkinter.  
-It summarizes free-form text using sentence ranking (PageRank over a similarity graph), supports keyword boosting, bullet/paragraph output modes, and light/dark themes.
-
-## Features
-- Text summarization using `nltk + numpy + networkx`
-- Paragraph mode and bullet-point mode
-- Keyword chips to prioritize important terms
-- Summary length slider
-- Paraphrase summary output
-- Copy and download summary
-- Light/Dark theme toggle
+Both endpoints return JSON and validation errors with HTTP 400.
 
 ## Project Structure
+
 ```text
-NLP/
-|-- app/
-|   |-- __init__.py
-|   |-- core/
-|   |   |-- __init__.py
-|   |   `-- nlp_engine.py
-|   `-- ui/
-|       |-- __init__.py
-|       |-- theme.py
-|       `-- main_window.py
-|-- main.py
-|-- req.txt
-`-- venv/
+nlp-text-summarizer/
+|-- app/core/nlp_engine.py
+|-- config/
+|   |-- settings.py
+|   |-- urls.py
+|   |-- asgi.py
+|   `-- wsgi.py
+|-- summarizer/
+|   |-- forms.py
+|   |-- services.py
+|   |-- urls.py
+|   `-- views.py
+|-- templates/summarizer/index.html
+|-- static/summarizer/css/styles.css
+|-- static/summarizer/js/app.js
+|-- manage.py
+`-- req.txt
 ```
 
-## Requirements
-- Python 3.10+ (3.12 works)
-- `pip`
+## Optional Environment Variables
 
-Dependencies are listed in `req.txt`:
-- `nltk>=3.8`
-- `numpy>=1.24`
-- `networkx>=3.0`
-
-## Installation
-1. Open terminal in project folder:
-   ```powershell
-   cd "d:\All Files\Project\NLP"
-   ```
-2. Create virtual environment:
-   ```powershell
-   python -m venv venv
-   ```
-3. Activate virtual environment (Windows):
-   ```powershell
-   .\venv\Scripts\Activate.ps1
-   ```
-4. Install dependencies:
-   ```powershell
-   pip install -r req.txt
-   ```
-
-## Run the App
-```powershell
-python main.py
-```
-
-## Notes
-- On first run, the app tries to download required NLTK resources (`punkt`, `punkt_tab`, `stopwords`, `wordnet`).
-- Make sure you have internet access on first launch for NLTK data download.
-
-## Troubleshooting
-- If NLTK tokenizer/corpus errors appear, run:
-  ```powershell
-  python -c "import nltk; [nltk.download(x) for x in ['punkt','punkt_tab','stopwords','wordnet']]"
-  ```
-- If PowerShell blocks venv activation, run:
-  ```powershell
-  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-  ```
+- `DJANGO_SECRET_KEY`
+- `DJANGO_DEBUG` (`1` or `0`)
+- `DJANGO_ALLOWED_HOSTS` (comma-separated)

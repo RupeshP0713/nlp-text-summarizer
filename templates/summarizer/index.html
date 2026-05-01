@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Text Summarizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'summarizer/css/styles.css' %}">
+</head>
+<body class="theme-light">
+<div class="side-decor" aria-hidden="true">
+    <span class="decor-square"><i class="bi bi-braces"></i></span>
+    <span class="decor-square"><i class="bi bi-stars"></i></span>
+</div>
+<main class="page-wrap">
+    <section class="panel">
+        <header class="header">
+            <h1>
+                <span class="title-mark"><i class="bi bi-cpu-fill"></i></span>
+                <span class="title-words">
+                    <span class="title-part-a">Free Text</span>
+                    <span class="title-part-b">Summarizer</span>
+                </span>
+            </h1>
+            <p class="tagline">Semantic compression · Graph-ranked extraction</p>
+        </header>
+
+        <div class="toolbar glass-bar">
+            <div class="mode-toggle">
+                <button class="mode-btn active" data-mode="paragraph" type="button"><i class="bi bi-text-paragraph"></i> Paragraph</button>
+                <button class="mode-btn" data-mode="bullet" type="button"><i class="bi bi-list-ul"></i> Bullet Points</button>
+            </div>
+
+            <div class="length-control" id="length-control-root" style="--range-pct: 28.57%;">
+                <span class="length-label-row"><i class="bi bi-sliders"></i> Summary length</span>
+                <div class="length-row">
+                    <span class="length-end"><i class="bi bi-chevron-left"></i> Short</span>
+                    <input id="summary-length" type="range" min="0.15" max="0.85" value="0.35" step="0.01">
+                    <span class="length-end">Long <i class="bi bi-chevron-right"></i></span>
+                </div>
+            </div>
+
+            <button id="clear-btn" class="ghost-btn" type="button"><i class="bi bi-trash3"></i> Clear</button>
+        </div>
+
+        <div class="content-grid">
+            <section class="card glass-card">
+                <h2><i class="bi bi-chat-dots"></i> Source Input</h2>
+                <div class="editor-shell">
+                    <div class="editor-tools" role="toolbar" aria-label="Formatting">
+                        <span class="tool-block-group">
+                            <button type="button" class="tool-chip tool-block" data-block="p" title="Normal paragraph">Normal</button>
+                            <button type="button" class="tool-chip tool-block tool-block-sm" data-block="h2" title="Heading 2">H2</button>
+                            <button type="button" class="tool-chip tool-block tool-block-sm" data-block="h3" title="Heading 3">H3</button>
+                        </span>
+                        <span class="tool-div"></span>
+                        <button type="button" class="tool-btn" data-cmd="bold" title="Bold"><i class="bi bi-type-bold"></i></button>
+                        <button type="button" class="tool-btn" data-cmd="italic" title="Italic"><i class="bi bi-type-italic"></i></button>
+                        <button type="button" class="tool-btn" data-cmd="underline" title="Underline"><i class="bi bi-type-underline"></i></button>
+                        <button type="button" class="tool-btn" data-cmd="strikeThrough" title="Strikethrough"><i class="bi bi-type-strikethrough"></i></button>
+                        <button type="button" class="tool-btn" id="tool-fore-color-btn" title="Text color"><i class="bi bi-palette"></i></button>
+                        <button type="button" class="tool-btn" id="tool-hilite-color-btn" title="Highlight"><i class="bi bi-highlighter"></i></button>
+                        <input type="color" id="tool-fore-color" class="sr-only-input" value="#1e4976" aria-label="Pick text color" tabindex="-1">
+                        <input type="color" id="tool-hilite-color" class="sr-only-input" value="#fff9c4" aria-label="Pick highlight color" tabindex="-1">
+                        <span class="tool-div"></span>
+                        <button type="button" class="tool-btn" data-cmd="insertUnorderedList" title="Bullet list"><i class="bi bi-list-ul"></i></button>
+                        <button type="button" class="tool-btn" data-cmd="insertOrderedList" title="Numbered list"><i class="bi bi-list-ol"></i></button>
+                        <button type="button" class="tool-btn" data-cmd="indent" title="Indent"><i class="bi bi-text-indent-left"></i></button>
+                        <button type="button" class="tool-btn" data-cmd="outdent" title="Outdent"><i class="bi bi-arrow-return-left"></i></button>
+                        <span class="tool-div"></span>
+                        <button type="button" class="tool-btn" id="tool-blockquote-btn" title="Quote (blockquote)"><i class="bi bi-quote"></i></button>
+                        <button type="button" class="tool-btn" id="tool-code-btn" title="Code block"><i class="bi bi-code-slash"></i></button>
+                        <button type="button" class="tool-btn" id="tool-link-btn" title="Insert link"><i class="bi bi-link-45deg"></i></button>
+                        <button type="button" class="tool-btn" data-cmd="removeFormat" title="Clear format"><i class="bi bi-eraser"></i></button>
+                    </div>
+                    <div
+                        id="source-text"
+                        class="rich-editor is-empty"
+                        contenteditable="true"
+                        role="textbox"
+                        aria-multiline="true"
+                        aria-label="Source text"
+                        data-placeholder="Paste or type your text here..."
+                    ></div>
+                </div>
+                <div class="keywords">
+                    <h3><i class="bi bi-tags"></i> Select Keywords</h3>
+                    <p class="keyword-hint">Type text to see keywords.</p>
+                    <div id="keyword-list" class="keyword-list"></div>
+                    <p id="source-stats" class="stats"><i class="bi bi-chat-text"></i> 0 words</p>
+                </div>
+            </section>
+
+            <section class="card glass-card">
+                <h2><i class="bi bi-stars"></i> Neural Summary</h2>
+                <div class="editor-shell summary-shell">
+                    <textarea id="summary-text" placeholder="Summary will appear here..." readonly></textarea>
+                </div>
+                <p id="summary-stats" class="stats"><i class="bi bi-bar-chart"></i> 0 sentences · 0 words</p>
+            </section>
+        </div>
+
+        <footer class="footer glass-bar">
+            <button id="summarize-btn" class="primary-btn" type="button"><i class="bi bi-lightning-charge-fill"></i> Summarize</button>
+            <div class="footer-actions">
+                <button id="copy-btn" class="ghost-btn" type="button"><i class="bi bi-clipboard"></i> Copy</button>
+                <button id="whatsapp-btn" class="ghost-btn" type="button"><i class="bi bi-whatsapp"></i> WhatsApp</button>
+                <button id="save-btn" class="ghost-btn" type="button"><i class="bi bi-download"></i> Save</button>
+                <button id="theme-btn" class="ghost-btn" type="button"><i class="bi bi-sun"></i> Theme</button>
+            </div>
+        </footer>
+    </section>
+</main>
+
+<script>
+    window.APP_CONFIG = {
+        summarizeUrl: "{% url 'summarize_api' %}",
+        keywordsUrl: "{% url 'keywords_api' %}",
+        csrfToken: "{{ csrf_token }}",
+    };
+</script>
+<script src="{% static 'summarizer/js/app.js' %}"></script>
+</body>
+</html>
