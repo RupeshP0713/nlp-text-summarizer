@@ -78,3 +78,10 @@ nlp-text-summarizer/
 - `DJANGO_SECRET_KEY`
 - `DJANGO_DEBUG` (`1` or `0`)
 - `DJANGO_ALLOWED_HOSTS` (comma-separated)
+
+
+# Command to run
+
+cd nlp-text-summarizer
+source venv/bin/activate
+python3 manage.py runserver
