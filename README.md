@@ -85,9 +85,7 @@ nlp-text-summarizer/
 Copy and paste the commands below into your terminal:
 
 ```powershell
-cd "C:\Project\nlp-text-summarizer"
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r req.txt
-python manage.py runserver
+cd nlp-text-summarizer
+source venv/bin/activate
+python3 manage.py runserver
 ```
